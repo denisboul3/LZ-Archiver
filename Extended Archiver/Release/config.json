@@ -1,0 +1,8 @@
+{
+	"extension": ".testy",
+	"case_sensitive": true,
+	"magic_key": 716045,
+	"debug": true,
+	"unpack_pref" : "_unpacked/",
+	"showhex" : false
+}
