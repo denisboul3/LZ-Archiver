@@ -139,10 +139,12 @@ bool NewFileSystem::CreateArchive(const char* szArchiveName, const char* path)
 				if (!config.caseSensitive)
 					transform(filePath.begin(), filePath.end(), filePath.begin(), tolower);
 
-				std::replace(filePath.begin(), filePath.end(), '\\', '/');
-				std::string insideName = filePath.substr(strlen(path) + 1, strlen(filePath.c_str()));
+				std::string insideName = filePath.substr(filePath.find_first_of("\\")+1, filePath.length());
 				std::string fname = insideName;
 
+				std::replace(fname.begin(), fname.end(), '\\', '/');
+
+				std::cout << filePath <<  " => " << fname << std::endl;
 				//std::string hash = sha256(config.salt + fname);
 				//infoFile << hash.c_str() << ":" << fname.c_str() << "\n";
 				FileCompile cInfo = CompileFile(filePath);
@@ -213,7 +215,7 @@ void NewFileSystem::LoadKeyList(const char* szArchiveName)
 }
 */
 
-bool NewFileSystem::UnpackArchive(const char* szArchiveName)
+bool NewFileSystem::UnpackArchive(const char* szArchiveName, bool readtomap)
 {
 	std::string fileName = szArchiveName;
 	size_t extPos = fileName.find('.');
@@ -276,14 +278,19 @@ bool NewFileSystem::UnpackArchive(const char* szArchiveName)
 		std::string completePath = fileName + config.unpack_pref + entry.name;
 		size_t fileNamePos = completePath.find_last_of("/");
 		fs::create_directories(completePath.substr(0, fileNamePos));
-		if (std::FILE* f1 = std::fopen(completePath.c_str(), "wb")) {
+		if (!readtomap) {
+			if (std::FILE* f1 = std::fopen(completePath.c_str(), "wb")) {
 
-			std::fwrite(&tmp[entry.size], sizeof(unsigned char), entry.fileLength, f1);
-			std::fclose(f1);
+				std::fwrite(&tmp[entry.size], sizeof(unsigned char), entry.fileLength, f1);
+				std::fclose(f1);
+			}
+			else {
+				std::cout << "Unknown Error: " << entry.name << std::endl;
+				return false;
+			}
 		}
 		else {
-			std::cout << "Unknown Error: " << entry.name << std::endl;
-			return false;
+			datamap[entry.name] = { &tmp[entry.size], sizeof(unsigned char), entry.fileLength };
 		}
 		++cnt;
 	}

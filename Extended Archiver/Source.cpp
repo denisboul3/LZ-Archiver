@@ -24,5 +24,16 @@ int main(int argc, const char* argv[])
 			archiver.UnpackArchive(fName.c_str());
 		}
 	}
+	else if (argc == 4) {
+		//.exe read bla.testy file.py
+		if (strcmp(argv[1], "read") == 0) {
+		
+			std::string file2read = argv[2];
+			archiver.UnpackArchive(file2read.c_str(), true);
+			const void* data = (const void*)archiver.RawData(argv[3]);
+			std::cout << (const char*)data;
+			//std::copy(data, std::ostream_iterator<unsigned char>(std::cout));
+		}
+	}
 	return 0;
 }

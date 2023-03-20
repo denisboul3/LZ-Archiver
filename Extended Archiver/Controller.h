@@ -36,26 +36,38 @@ namespace ArchiveStructs
 		std::string unpack_pref;
 		bool showhex;
 	};
+
+	struct contentInfo {
+		void* rawData;
+		size_t len;
+		size_t fileLength;
+	};
+
 };
 
 class NewFileSystem
 {
-	public:
-		bool CreateArchive(const char* szArchiveName, const char* path);
-		ArchiveStructs::FileCompile CompileFile(std::string input_src);
+public:
+	bool CreateArchive(const char* szArchiveName, const char* path);
+	ArchiveStructs::FileCompile CompileFile(std::string input_src);
 
-		bool UnpackArchive(const char* szArchiveName);
-		//void LoadKeyList(const char* szArchiveName);
+	bool UnpackArchive(const char* szArchiveName, bool readtomap = false);
+	//void LoadKeyList(const char* szArchiveName);
 
-		void LoadConfig();
+	void LoadConfig();
 
-		std::string GetExtension()
-		{
-			return config.extension;
-		}
+	std::string GetExtension()
+	{
+		return config.extension;
+	}
 
-	private:
-		ArchiveStructs::ArchiverConfig config;
-//		std::map<std::string, std::string> keyList;
+	const void* RawData(const char* fName) {
+		return datamap.find(fName) != datamap.end() ? datamap[fName].rawData : "1";
+	}
+
+private:
+	ArchiveStructs::ArchiverConfig config;
+	std::map<std::string, ArchiveStructs::contentInfo> datamap;
+	//		std::map<std::string, std::string> keyList;
 
 };
